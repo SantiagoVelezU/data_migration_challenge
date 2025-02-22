@@ -1,6 +1,7 @@
+#This file reads data from csv files, does some validations and then inserts it into db tables.
 import pandas as pd
 import logging
-from api.database import Session, Base, engine
+from api.database import Actual_session, Base, engine
 from api.models import Department, Job, HiredEmployee
 
 # Configure logging to write errors to a file named "error_data.log".
@@ -69,7 +70,7 @@ def load_data(csv_path, model, table_name, colums):
         for error in errors:
             logging.error(error)
 
-    act_session = Session()
+    act_session = Actual_session()
 
     for _, row in df.iterrows():
         try:
@@ -96,7 +97,7 @@ def main():
 
     create_tables()
 
-    # Load data from CSV files into the database
+    # Load data from CSV files into the database with expected columns
     load_data('data/departments.csv', Department, 'deparments', ['id', 'department'])
     load_data('data/jobs.csv', Job, 'jobs', ['id', 'job'])
     load_data('data/hired_employees.csv', HiredEmployee, 'hired_employees', ['id', 'name', 'datetime', 'department_id', 'job_id'])

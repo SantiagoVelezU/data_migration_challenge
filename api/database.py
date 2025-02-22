@@ -21,7 +21,7 @@ DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSGREST_HOST
 
 # Create the database connection and session
 engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+Actual_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 # Base class for the database models (important to create our tables)
 Base = declarative_base()
