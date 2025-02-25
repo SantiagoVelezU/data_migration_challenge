@@ -19,7 +19,7 @@ class JobSchema(BaseModel):
 
 class HiredEmployeeSchema(BaseModel):
     id: int = Field(..., ge=1, description="Employee's unique identifier.")
-    first_name: str = Field(..., description="Employee's first name.")
+    name: str = Field(..., description="Employee's first name.")
     datetime: DateTime = Field(..., description="Date and time of hiring.")
     department_id: int = Field(..., ge=1, description="Department's unique identifier.")
     job_id: int = Field(..., ge=1, description="Job's unique identifier.")

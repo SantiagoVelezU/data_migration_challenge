@@ -4,9 +4,11 @@ import logging
 from api.database import Actual_session, Base, engine
 from api.models import Department, Job, HiredEmployee
 
+
+
 # Configure logging to write errors to a file named "error_data.log".
 logging.basicConfig(
-    filename="error_data.log",
+    filename="data_error.log",
     level=logging.ERROR,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -14,18 +16,26 @@ logging.basicConfig(
 
 def create_tables():
     """
-    Create the tables in the database if they do not exist.
+    Create tables in the database if they do not exist.
     """
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully.")
 
 
+def nan_errors(row, index):
+    """
+    Logging NaN errors in DataFrame
+    """
+    for col in row.index:
+        if pd.isna(row[col]):  
+            logging.error(f"Row {index + 1} - Column {col} with NaN elements")
+
+
 def validate_data(df, table_name):
     """
-    Validate the data in the DataFrame before inserting it into the database.
+    Validate data in the DataFrame before inserting it into the database.
     Data should be in the correct format and not contain any null values.
     """
-    errors = []
 
     try:
         if table_name =='deparments':
@@ -44,15 +54,14 @@ def validate_data(df, table_name):
             df['department_id'] = pd.to_numeric(df['department_id'], errors='coerce', downcast='integer')
             df['job_id'] = pd.to_numeric(df['job_id'], errors='coerce', downcast='integer')
 
-        if df.isnull().values.any():
-            errors.append("Data contains null values.")
-            df = df.dropna()
-
+        # if df.isnull().values.any():
+        #     errors.append("Data contains null values.")
+        #     df = df.dropna()
     except Exception as e:
         logging.error(f"Error validating data from {table_name}: {e}")
         return pd.DataFrame(), [f"Error validating data from {table_name}: {e}"]
     
-    return df, errors
+    return df
 
 
 def load_data(csv_path, model, table_name, colums):
@@ -65,10 +74,11 @@ def load_data(csv_path, model, table_name, colums):
         logging.error(f"Error loading data from {csv_path}: {e}")
         return
     
-    df, errors = validate_data(df, table_name)
-    if errors:
-        for error in errors:
-            logging.error(error)
+    df = validate_data(df, table_name)
+    for index, row in df.iterrows():
+        if row.isna().any():
+            nan_errors(row, index)
+    df = df.dropna()
 
     act_session = Actual_session()
 
@@ -91,13 +101,10 @@ def load_data(csv_path, model, table_name, colums):
 
 def main():
     """
-    Main function to load data from CSV files into the database.
+    Main function to load data from CSV files into the database with expected columns.
     """
-    print("Initializing loading data process from CSV files into the database...")
-
     create_tables()
-
-    # Load data from CSV files into the database with expected columns
+    print("Initializing loading data process from CSV files into the database...")
     load_data('data/departments.csv', Department, 'deparments', ['id', 'department'])
     load_data('data/jobs.csv', Job, 'jobs', ['id', 'job'])
     load_data('data/hired_employees.csv', HiredEmployee, 'hired_employees', ['id', 'name', 'datetime', 'department_id', 'job_id'])

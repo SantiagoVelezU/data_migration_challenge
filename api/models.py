@@ -16,7 +16,7 @@ class Job(Base):
 
 class HiredEmployee(Base):
     __tablename__ = "hired_employees"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=False)
     name = Column(String, nullable=False)
     datetime = Column(DateTime, nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
