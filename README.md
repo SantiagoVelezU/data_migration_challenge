@@ -16,5 +16,11 @@ Docker compose
 PostgreSQL
 
 ## Setup Instructions
-1) Clone the repository: 
-2) Execute command: docker-compose up --build 
+1) Clone the repository: https://github.com/SantiagoVelezU/data_migration_challenge
+2) Create enviroment variables (.env) with your credentials:
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+POSTGRES_DB=db_name
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+3) Execute command: docker-compose up --build 

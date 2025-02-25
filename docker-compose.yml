@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: santvele
+      POSTGRES_PASSWORD: rafaelNADAL19
+      POSTGRES_DB: prueba
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrate:
+    build: ./scripts
+    container_name: migration_script
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+      POSTGRES_HOST: db
+    command: ["python", "-m", "scripts.migrate_csv"]
+
+  api:
+    build: ./api
+    container_name: fastapi_app
+    depends_on:
+      - migrate
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+      POSTGRES_HOST: db
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+volumes:
+  postgres_data:
